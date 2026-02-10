@@ -213,12 +213,5 @@ We then chose the random forest model because it is less prone to overfitting co
 
 ---
 
-## 🔮 Future Improvements
-- [ ] Implement deep learning models (CNN, LSTM)
-- [ ] Add real-time air quality data integration
-- [ ] Develop a web interface for predictions
-- [ ] Include additional demographic features
-- [ ] Temporal analysis with time-series models
-
 ---
 
