@@ -1,6 +1,47 @@
-# Predictive Analysis of COPD and Air Quality
+# VOC-AQI Monitoring System with MQ Series Sensors
 
-## 🔬 Lung Disease Prediction using Machine Learning
+## 🔬 Lung Disease Prediction & Air Quality Monitoring using Raspberry Pi
+
+![System Architecture](Image%20(2).png)
+
+---
+
+## 🌐 System Overview
+
+**Raspberry Pi Interface** integrates two key components for comprehensive health monitoring:
+
+1. **VOC Detection** - Uses MQ series sensors to track volatile organic compounds linked to lung diseases
+2. **AQI Monitoring (Model-0 SVM)** - Utilizes regional Air Quality Index data to enhance disease tracking
+
+The interface effectively combines these elements to provide comprehensive health insights for respiratory disease prevention and monitoring.
+
+---
+
+## 📡 MQ Series Sensors - What They Detect
+
+| Sensor | Target Gases | Applications |
+|--------|-------------|--------------|
+| **MQ-2** | LPG, Propane, Methane, Hydrogen, Smoke | General combustible gas detection, smoke detection |
+| **MQ-3** | Alcohol, Ethanol, Benzene | Breathalyzer applications, alcohol vapor detection |
+| **MQ-4** | Methane (CH₄), Natural Gas | Natural gas leak detection, methane monitoring |
+| **MQ-5** | LPG, Natural Gas, Town Gas | Domestic gas leak detection |
+| **MQ-6** | LPG, Propane, Isobutane | LPG-specific detection |
+| **MQ-7** | Carbon Monoxide (CO) | CO poisoning prevention, indoor air quality |
+| **MQ-8** | Hydrogen (H₂) | Hydrogen leak detection |
+| **MQ-9** | Carbon Monoxide (CO), Methane | Dual gas detection for indoor safety |
+| **MQ-135** | NH₃, NOₓ, Benzene, CO₂, Alcohol, Smoke | **Air quality monitoring**, pollution detection |
+| **MQ-136** | Hydrogen Sulfide (H₂S) | Toxic gas detection, industrial safety |
+| **MQ-137** | Ammonia (NH₃) | Agricultural, industrial ammonia detection |
+| **MQ-138** | Benzene, Toluene, Alcohol, Acetone, Formaldehyde | **VOC detection**, indoor air quality |
+
+### Key Sensors for Lung Disease Tracking:
+- **MQ-135**: Ideal for general air quality index monitoring - detects multiple pollutants affecting respiratory health
+- **MQ-138**: Specialized for VOC detection - formaldehyde, benzene, and other carcinogens linked to lung disease
+- **MQ-7/MQ-9**: Carbon monoxide detection - critical for preventing CO poisoning and respiratory damage
+
+---
+
+## 🔬 Predictive Analysis of COPD and Air Quality
 
 #### Disclaimer:
 Jupyter Notebook uploaded in this repo may occasionally show **render failure** due to github issues. If it happens, please refer to the link below to access Jupyter Notebook via nbviewer.
@@ -16,7 +57,7 @@ Jupyter Notebook uploaded in this repo may occasionally show **render failure** 
 
 ### ML/AI Techniques Used:
   - **Support Vector Machine (SVM)** - Linear, RBF, and Polynomial kernels
-  - **Gradient Boosting Classifier** ⭐ Best performing model (87.6% accuracy)
+  - **Gradient Boosting Classifier** Best performing model (87.6% accuracy)
   - **Random Forest Classifier** (86.0% accuracy)
   - **Neural Network (MLP)** - Multi-layer Perceptron
   - **K-Nearest Neighbors (KNN)**
@@ -28,7 +69,7 @@ Jupyter Notebook uploaded in this repo may occasionally show **render failure** 
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Requirements
 ```bash
@@ -42,7 +83,7 @@ pip install pandas numpy matplotlib seaborn scikit-learn requests plotly
 
 ---
 
-## 📊 Model Performance Summary
+## Model Performance Summary
 
 | Model | Test Accuracy | ROC-AUC |
 |-------|--------------|---------|
@@ -56,7 +97,7 @@ pip install pandas numpy matplotlib seaborn scikit-learn requests plotly
 
 ---
 
-## 📁 Datasets
+## Datasets
 
 ### 1. CDC Chronic Disease Indicators (COPD Data)
 - **Source:** [CDC Open Data Portal](https://data.cdc.gov/resource/hksd-2xuw.csv)
@@ -184,16 +225,3 @@ We then chose the random forest model because it is less prone to overfitting co
 
 ---
 
-#### Want to learn more about the background of the story, how and why we chose these models, and more? Check out the Written Final Report below!
-
-
-### 🛠️ Link to Final Report 
-[Written Report](https://drive.google.com/file/d/1BsE3aeGkDo0m1LDiIxZam5Y_y11_iBsZ/view?usp=sharing)
-
----
-
-## 📄 License
-This project is for educational and research purposes.
-
-## 🤝 Contributing
-Feel free to submit issues and pull requests to improve this project.
