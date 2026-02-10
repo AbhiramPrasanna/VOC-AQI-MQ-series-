@@ -1,12 +1,12 @@
 # VOC-AQI Monitoring System with MQ Series Sensors
 
-## 🔬 Lung Disease Prediction & Air Quality Monitoring using Raspberry Pi
+## Lung Disease Prediction & Air Quality Monitoring using Raspberry Pi
 
 ![System Architecture](Image%20(2).png)
 
 ---
 
-## 🌐 System Overview
+##  System Overview
 
 **Raspberry Pi Interface** integrates two key components for comprehensive health monitoring:
 
@@ -17,7 +17,7 @@ The interface effectively combines these elements to provide comprehensive healt
 
 ---
 
-## 📡 MQ Series Sensors - What They Detect
+## MQ Series Sensors - What They Detect
 
 | Sensor | Target Gases | Applications |
 |--------|-------------|--------------|
@@ -41,7 +41,7 @@ The interface effectively combines these elements to provide comprehensive healt
 
 ---
 
-## 🔬 Predictive Analysis of COPD and Air Quality
+## Predictive Analysis of COPD and Air Quality
 
 #### Disclaimer:
 Jupyter Notebook uploaded in this repo may occasionally show **render failure** due to github issues. If it happens, please refer to the link below to access Jupyter Notebook via nbviewer.
@@ -127,15 +127,14 @@ pip install pandas numpy matplotlib seaborn scikit-learn requests plotly
 #### Data Visualization: 
 - Relationship between smoking population and COPD incidence
 - Comparing smoking population by race and gender with COPD patients
-<img width="806" alt="image" src="https://github.com/raachelssss/COPD-and-Air-Quality/assets/88609253/e6879d82-ab26-4311-a97a-15f9ae3ce919">
+
 
 - Comparing Ozone ppb, PM 2.5 Concentration, and COPD Prevalence Rate by state using Geo Maps
     - It was observed that COPD prevalence rate distributions differ by gender and race.
-<img width="826" alt="image" src="https://github.com/raachelssss/COPD-and-Air-Quality/assets/88609253/e8694bc4-39de-4c5f-9763-975f0bd82642">
 
 - Is there a difference in air pollution between areas with predominantly minority populations and areas with predominantly White populations?
     - It was observed that areas with predominantly White populations have relatively lower air pollution compared to areas with predominantly minority populations.
-<img width="829" alt="image" src="https://github.com/raachelssss/COPD-and-Air-Quality/assets/88609253/382fb0d2-4645-48fb-bbb8-6c74a65a0f1d">
+
 
 
 
@@ -144,7 +143,7 @@ pip install pandas numpy matplotlib seaborn scikit-learn requests plotly
   
 **Outcome Regression:**
 -   Fit a linear model of the following form:
-<img width="869" alt="image" src="https://github.com/raachelssss/COPD-and-Air-Quality/assets/88609253/808c3628-d374-466f-ac25-59c82647a7f3">
+
 
 - Confidence Interval at 5% Significance Level = [-0.661, 1.067]
 - Due to its proximity to zero, the Outcome Regression could not establish a causal relationship.
@@ -153,8 +152,7 @@ pip install pandas numpy matplotlib seaborn scikit-learn requests plotly
   
 **Inverse Propensity Weighting:**
 - Propensity Score: P(State has a bad air quality | confounding variables) using logistic regression
-- <img width="529" alt="image" src="https://github.com/raachelssss/COPD-and-Air-Quality/assets/88609253/27b28bd7-ffd5-47b7-9f13-5822373a9d41">
-<img width="546" alt="image" src="https://github.com/raachelssss/COPD-and-Air-Quality/assets/88609253/c5c29616-e04b-439a-97b2-1576e4a133a5">
+
 
   - IPW demonstrates the causal relationship between poor air quality and the onset of COPD under two assumptions:
   - 1) age-adjusted prevalence of COPD among adults is unconfounded given the variables
@@ -170,14 +168,14 @@ Firstly, Bayesian GLM and Frequentist GLM models were adopted and trained.
 
 
 **Bayesian GLM:**
-- <img width="853" alt="image" src="https://github.com/raachelssss/COPD-and-Air-Quality/assets/88609253/3bac208d-655a-44e3-a50d-86698bc13c9b">
+
 - The Bayesian GLM model shows a possibility of overfitting.
 - Hispanic individuals have the lowest probability of COPD compared to Multiracial individuals.
 - The population living at a lower latitude and higher longitude may be more vulnerable to COPD.
 
 
 **Frequentist GLM:**
-- <img width="842" alt="image" src="https://github.com/raachelssss/COPD-and-Air-Quality/assets/88609253/d728b791-cd4f-488b-8f4e-218bf79d8187">
+
 - Hispanic, Multiracial, and White variables have p-values smaller than 0.05, indicating statistical significance.
 - However, considering the high Pearson chi-squared value, the model may not fit the data well.
 
@@ -185,8 +183,7 @@ GLM has several inherent limitations. Firstly, it does not select features to in
 We then chose the random forest model because it is less prone to overfitting compared to logistic regression GLMs because random forest consists of many classifiers that are independently trained on different subsets of the training data. Random forest, as an ensemble model that uses feature bagging, is less likely to overfit because it has low variance. 
 
 **Random Forest Model:**
-- <img width="858" alt="image" src="https://github.com/raachelssss/COPD-and-Air-Quality/assets/88609253/b5b0a363-06cb-436f-b9a9-749a11d64cc3">
-- <img width="859" alt="image" src="https://github.com/raachelssss/COPD-and-Air-Quality/assets/88609253/9e48c01c-a263-4538-9261-483d3f70c846">
+
 
 - The Feature Importance of variables indicating race is very low compared to latitude and longitude, suggesting that predicting COPD occurrence solely based on population demographics is challenging.
 - It is regrettable that the performance of the model did not improve significantly even if different variables were adopted instead of race.
