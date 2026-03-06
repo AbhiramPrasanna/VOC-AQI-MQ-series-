@@ -9,13 +9,13 @@ A system that combines CDC COPD epidemiological data with live MQ gas sensor rea
 ## Project Structure
 
 ```
-├── pico_mq_monitor.py              # Pico MicroPython — live sensor reading + ML inference
+├── pico_mq_monitor.py              # MicroPython — live sensor reading + ML inference on Pico
 ├── mq_health_predictor.py           # PC — trains 3 ML models, analyzes MQ data, generates reports
 ├── export_weights_for_pico.py       # PC — trains lightweight MLP, exports weights for Pico
 ├── COPD_and_Low_Air_Quality.ipynb   # Jupyter Notebook — EDA, causal inference, model comparison
 ├── data/
-│   ├── MQ_Dataset.xlsx                                              # 210 readings from 7 MQ sensors
-│   └── U.S._Chronic_Disease_Indicators__COPD.csv                   # 309,215 CDC records
+│   ├── MQ_Dataset.xlsx              # 210 readings from 7 MQ sensors
+│   └── U.S._Chronic_Disease_Indicators__COPD.csv   # 309,215 CDC records
 └── README.md
 ```
 
@@ -84,7 +84,7 @@ A system that combines CDC COPD epidemiological data with live MQ gas sensor rea
 ## MQ Sensors — What They Detect
 
 | Sensor | Target Gases | Health Threshold (safe / warning / danger) |
-|--------|-------------|-----------------|
+|--------|-------------|---------------------------------------------|
 | **MQ-135** | NH3, NOx, Benzene, CO2, Smoke | 150 / 350 / 500 ppm |
 | **MQ-4** | Methane (CH4), CNG | 25 / 45 / 70 ppm |
 | **MQ-5** | LPG, Natural Gas | 7 / 12 / 18 ppm |
@@ -122,8 +122,8 @@ The Jupyter Notebook explores whether air pollution causes COPD using CDC data:
 
 | Dataset | Source | Size |
 |---------|--------|------|
-| CDC Chronic Disease Indicators (COPD) | [data.cdc.gov](https://data.cdc.gov/resource/hksd-2xuw.csv) | 309,215 rows x 34 cols |
-| MQ Sensor Readings | Raspberry Pi + MQ breakout boards | 210 rows (7 sensors x 30 readings) |
+| CDC Chronic Disease Indicators (COPD) | [data.cdc.gov](https://data.cdc.gov/resource/hksd-2xuw.csv) | 309,215 rows × 34 cols |
+| MQ Sensor Readings | Raspberry Pi + MQ breakout boards | 210 rows (7 sensors × 30 readings) |
 
 ---
 
