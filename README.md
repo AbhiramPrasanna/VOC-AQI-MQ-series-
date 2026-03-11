@@ -2,54 +2,84 @@
 
 ## Respiratory Disease Risk Prediction & Real-Time Air Quality Monitoring
 
-A system that combines CDC COPD epidemiological data with live MQ gas sensor readings on a **Raspberry Pi Pico** to predict respiratory health risks using a trained neural network.
+A system that combines **CDC COPD epidemiological data** with **live MQ gas sensor readings** on a **Raspberry Pi Pico** to predict respiratory health risks. The project trains multiple ML models on both datasets, selects the best one, and exports its weights for on-device inference — no internet, no cloud, no external libraries needed on the microcontroller.
 
 ---
 
 ## Project Structure
 
 ```
-├── pico_mq_monitor.py              # MicroPython — live sensor reading + ML inference on Pico
-├── mq_health_predictor.py           # PC — trains 3 ML models, analyzes MQ data, generates reports
-├── export_weights_for_pico.py       # PC — trains lightweight MLP, exports weights for Pico
-├── COPD_and_Low_Air_Quality.ipynb   # Jupyter Notebook — EDA, causal inference, model comparison
+├── Combined_Model_Training.ipynb    # End-to-end: data loading, training, evaluation, weight export
+├── pico_mq_monitor.py               # MicroPython — live sensor reading + ML inference on Pico
+├── pico_mlp_weights.py              # Auto-generated weights file (output of notebook)
+├── mq_health_predictor.py           # Standalone PC trainer — 3 models, reports, CLI
+├── export_weights_for_pico.py       # Standalone PC script — lightweight MLP weight export
 ├── data/
-│   ├── MQ_Dataset.xlsx              # 210 readings from 7 MQ sensors
+│   ├── MQ_Dataset.xlsx              # 210 readings from 7 MQ sensors (30 per sensor)
 │   └── U.S._Chronic_Disease_Indicators__COPD.csv   # 309,215 CDC records
 └── README.md
 ```
 
 ---
 
+## Idea & Motivation
+
+Air pollution is a leading environmental risk factor for chronic obstructive pulmonary disease (COPD). The CDC's Chronic Disease Indicators dataset shows that states with worse air quality have measurably higher COPD prevalence. MQ-series gas sensors (MQ135, MQ5, MQ4, etc.) can measure VOC, methane, LPG, and other gases in real time — but raw PPM readings alone don't tell you about health risk.
+
+**This project bridges the gap:**
+
+1. **Train on epidemiological data** — learn the relationship between air quality indicators and COPD prevalence across U.S. states using the CDC dataset.
+2. **Train on sensor data** — learn gas concentration thresholds that correspond to dangerous conditions using MQ sensor readings.
+3. **Combine both** — build an ensemble that uses COPD-informed risk thresholds to label sensor data, then trains a compact MLP that runs on a $4 microcontroller.
+4. **Deploy to Pico** — export the best model's weights and run real-time inference on a Raspberry Pi Pico with zero dependencies.
+
+The result is a portable, offline air quality monitor that understands health context — not just raw gas levels.
+
+---
+
 ## How It Works
 
-### 1. Train on PC
+### Combined Model Training Notebook
 
-`mq_health_predictor.py` trains three models on CDC + MQ sensor data:
+`Combined_Model_Training.ipynb` is the single source of truth for the entire pipeline:
 
-| Model | Architecture | Accuracy | Purpose |
-|-------|-------------|----------|---------|
-| **MLP Neural Network** | 64 → 32 → 16 neurons, 50 epochs | 67.2% (CV: 77.4%) | COPD risk from geographic/demographic features |
-| **Gradient Boosting** | 100 stages, lr=0.05 | 100% (AUC: 1.0) | VOC risk from MQ135 readings |
-| **Random Forest** | 200 trees, max_depth=8 | 98.4% | Multi-sensor compound danger from all MQ sensors |
+#### Step 1 — Load & Explore Both Datasets
+- Loads CDC COPD data (309K rows) and MQ sensor readings (210 rows)
+- Computes COPD prevalence by state, maps to geographic coordinates
+- Pivots MQ sensor data into a feature matrix (MQ135, MQ2, MQ4, MQ5, MQ8, MQ9 PPM)
 
-### 2. Export Weights
+#### Step 2 — Train Individual Models
 
-`export_weights_for_pico.py` trains a lightweight MLP on sensor PPM data and exports the weights:
+| Model | Dataset | Architecture | Test Accuracy | Purpose |
+|-------|---------|-------------|---------------|---------|
+| **COPD MLP** | CDC | 32→16 neurons | ~67% | COPD risk from geographic/demographic features |
+| **VOC Gradient Boosting** | MQ sensors | 50 stages, lr=0.1 | ~100% | VOC danger from MQ135 readings |
+| **Multi-Sensor RF** | MQ sensors | 100 trees | ~98% | Compound danger from all 6 sensors |
 
-- **Architecture:** input(3) → 16 → 8 → 1 (sigmoid)
-- **Inputs:** MQ135, MQ5, MQ4 PPM values
-- **Output:** Probability of dangerous air quality
-- **Accuracy:** 97.2% test, 98.9% cross-validated
-- **Size:** 209 parameters (~0.8 KB) — fits in Pico flash
+#### Step 3 — Pico-Compatible MLP
+- Trains a lightweight MLP: **input(3) → 16 → 8 → 1** on MQ135 + MQ5 + MQ4 PPM
+- Uses COPD-informed thresholds to create health risk labels
+- Early stopping with validation monitoring
+- **Architecture: 209 parameters (~0.8 KB)** — fits in Pico flash
 
-### 3. Run on Raspberry Pi Pico
+#### Step 4 — Ensemble & Model Selection
+- Stacking ensemble (logistic regression meta-learner on top of all models)
+- Compares all models head-to-head and selects the best by cross-validated accuracy
+- Exports winner's weights to `pico_mlp_weights.py`
+
+#### Step 5 — Export & Verify
+- Writes weights, biases, scaler parameters, and sensor order to Python file
+- Runs verification: forward pass on test cases confirming inference matches training
+- Generates confusion matrix and feature importance visualizations
+
+### Run on Raspberry Pi Pico
 
 `pico_mq_monitor.py` runs on stock MicroPython with **no external libraries**:
 
 - Reads raw ADC from 3 MQ sensors every 5 seconds
 - Converts to PPM using datasheet calibration curves
-- **Runs the trained MLP forward pass** (pure math, no scikit-learn)
+- Imports weights from `pico_mlp_weights.py`
+- **Runs the trained MLP forward pass** (pure math — ReLU activation, matrix multiply)
 - Classifies air quality as SAFE / ELEVATED / WARNING / DANGER
 - Outputs risk score with `[ML]` tag confirming neural network inference
 - Auto-calibrates R0 in clean air on first boot
@@ -74,7 +104,7 @@ A system that combines CDC COPD epidemiological data with live MQ gas sensor rea
 ### First Run (Calibration)
 
 1. Flash MicroPython onto the Pico
-2. Upload `pico_mq_monitor.py` as `main.py`
+2. Upload `pico_mq_monitor.py` as `main.py` and `pico_mlp_weights.py` alongside it
 3. Place sensors in **clean outdoor air**
 4. Run — auto-calibration samples for 30 seconds, saves R0 values to `calibration.json`
 5. After calibration, set `CALIBRATE_ON_BOOT = False` in the script
@@ -96,28 +126,6 @@ Thresholds based on OSHA PEL, WHO, and EPA guidelines.
 
 ---
 
-## COPD Analysis (Notebook)
-
-The Jupyter Notebook explores whether air pollution causes COPD using CDC data:
-
-- **Causal Inference:** IPW estimate shows poor air quality causes **6.83% higher COPD prevalence**
-- **Predictive Models:** Geographic location (lat/lon) is the strongest predictor of COPD occurrence
-- **Key Finding:** Racial features have minimal predictive power — geography alone suffices
-
-> If the notebook fails to render on GitHub, use [nbviewer](https://nbviewer.org/github/raachelssss/COPD-and-Air-Quality/blob/main/COPD_and_Low_Air_Quality.ipynb).
-
-### Model Performance (Notebook)
-
-| Model | Test Accuracy | ROC-AUC |
-|-------|--------------|---------|
-| **Gradient Boosting** | **87.6%** | **0.944** |
-| Random Forest | 86.0% | 0.924 |
-| KNN | 76.0% | 0.830 |
-| Neural Network (MLP) | 71.1% | 0.806 |
-| SVM (RBF) | 70.2% | 0.787 |
-
----
-
 ## Datasets
 
 | Dataset | Source | Size |
@@ -132,7 +140,7 @@ The Jupyter Notebook explores whether air pollution causes COPD using CDC data:
 ### PC (training)
 
 ```bash
-pip install pandas numpy matplotlib seaborn scikit-learn openpyxl
+pip install pandas numpy matplotlib scikit-learn openpyxl
 ```
 
 ### Pico (inference)
@@ -144,14 +152,17 @@ Stock MicroPython — no packages needed. The neural network runs as pure arithm
 ## Quick Start
 
 ```bash
-# 1. Train and export weights (PC)
-python export_weights_for_pico.py
+# Option 1: Run the notebook (recommended)
+# Open Combined_Model_Training.ipynb and Run All
+# → produces pico_mlp_weights.py
 
-# 2. Full analysis with plots (PC)
-python mq_health_predictor.py
+# Option 2: Standalone scripts
+python export_weights_for_pico.py   # train + export weights
+python mq_health_predictor.py       # full analysis with plots
 
-# 3. Upload to Pico (via Thonny)
-# Copy pico_mq_monitor.py as main.py
+# Deploy to Pico (via Thonny)
+# Upload pico_mq_monitor.py as main.py
+# Upload pico_mlp_weights.py alongside it
 ```
 
 ---

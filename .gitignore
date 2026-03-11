@@ -46,3 +46,11 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Build scripts (not part of the project)
+build_notebook.py
+fix_notebook.py
+
+# Generated artifacts
+tree.dot
+smallTree.dot
